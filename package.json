@@ -1,0 +1,10 @@
+{
+  "dependencies": {
+    "csv-parse": "^4.16.0",
+    "glob": "^7.1.7",
+    "onkun": "^0.1.0",
+    "read-each-line-sync": "^1.0.5",
+    "tabula-js": "^1.0.1",
+    "yomi-dict": "^0.1.0"
+  }
+}
