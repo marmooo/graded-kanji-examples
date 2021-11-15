@@ -1,9 +1,5 @@
 const fs = require('fs');
 const readline = require('readline');
-const execSync = require('child_process').execSync;
-const glob = require('glob');
-const csvSync = require('csv-parse/lib/sync')
-const readEachLineSync = require('read-each-line-sync');
 const Onkun = require('onkun');
 const YomiDict = require('yomi-dict');
 
@@ -30,173 +26,30 @@ const w8 = w8_.concat(w7);
 const w9 = w9_.concat(w8);
 const learnedKanjis = [w1, w1, w2, w3, w4, w5, w6, w7, w8, w9];
 const gradeByKanjis = [w1_, w1_, w2_, w3_, w4_, w5_, w6_, w7_, w8_, w9_];
-// const fileNames = ['小1', '小1', '小2', '小3', '小4', '小5', '小6', '中2', '中3', '常用'];
 
-function isBeginnerWord(word, level) {
-  var count = 0;
-  var chars = word.split('');
-  for (var i=0; i<chars.length; i++) {
-    if (level < 10) {
-      if (gradeByKanjis[level].includes(chars[i])) {
-        count += 1;
-        if (count > 1) { return false; }
-      }
-    } else {
-      if (!/[\u4E00-\u9FFF]/.test(chars[i])) {
-        count += 1;
-        if (count > 1) { return false; }
-      }
-    }
-  }
-  if (count == 1) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
-function isBasicExample(word) {
-  var chars = word.split('');
-  for (var i=0; i<chars.length; i++) {
-    if (/[ぁ-ん]/.test(chars[i])) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function isValidWord(word, level) {
-  var chars = word.split('');
-  for (var i=0; i<chars.length; i++) {
-    if (level < 9) {
-      if (!/[ぁ-ん]/.test(chars[i]) && !learnedKanjis[level].includes(chars[i])) {
-        return false;
-      }
-    } else {
-      if (!/[ぁ-ん\u4E00-\u9FFF]/.test(chars[i])) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-function isValidIdiom(word, level) {
-  var chars = word.split('');
-  for (var i=0; i<chars.length; i++) {
-    if (level < 9) {
-      if (!learnedKanjis[level].includes(chars[i])) {
-        return false;
-      }
-    } else {
-      if (!/[\u4E00-\u9FFF]/.test(chars[i])) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-function toKanjiId(str) {
-  var hex = str.codePointAt(0).toString(16);
-  return ('00000' + hex).slice(-5);
-}
-
-function toKanji(kanjiId) {
-  return String.fromCodePoint(parseInt('0x' + kanjiId));
-}
-
-function sleep(time) {
-  const d1 = new Date();
-  while (true) {
-    const d2 = new Date();
-    if (d2 - d1 > time) {
-      return;
-    }
-  }
-}
-
-function getRegularKanjiInfo() {
-  var regularKanjiInfo = {};
-  var prevKanji;
-  var arr = csvSync(fs.readFileSync('jyouyou_kanjihyou.csv'));
-  arr.forEach(cols => {
-    if (cols[0] != '') {
-      var kanji = cols[0].split('(')[0];
-      if (cols[2] == '') {
-        var examples = [];
-      } else {
-        var examples = cols[2].split(',');
-      }
-      var remarks = [];
-      var specials = cols[3].split('←→');
-      for (var i=0; i<specials.length; i++) {
-        var r = specials[i].split(',');
-        if (r.length != 1 && r != '') {
-          remarks.push(...r);
-        }
-      }
-      regularKanjiInfo[kanji] = { '用例':examples, '備考':remarks };
-      prevKanji = kanji;
-    } else {
-      var prevInfo = regularKanjiInfo[prevKanji];
-      var examples = prevInfo['用例'];
-      if (cols[2] != '') {
-        examples.push(...cols[2].split(','));
-      }
-      var remarks = prevInfo['備考'];
-      var specials = cols[3].split('←→');
-      for (var i=0; i<specials.length; i++) {
-        var r = specials[i].split(',');
-        if (r.length != 1 && r != '') {
-          remarks.push(...r);
-        }
-      }
-      if (examples.includes('')) {
-        console.log(cols[2]);
-      }
-      regularKanjiInfo[prevKanji] = { '用例':examples, '備考':remarks };
-    }
-  });
-  return regularKanjiInfo;
-}
-
-// https://github.com/marmooo/ngram-idioms
-function getNgramIdioms(kanji, level) {
+function getGradedVocab(kanji, level) {
   var examples = [];
-  var filepath = 'ngram-idioms/kanji-2-5000/' + level + '.lst';
-  var list = fs.readFileSync(filepath).toString().split('\n').filter(word => word.includes(kanji));
-  examples.push(...list);
-  filepath = 'ngram-idioms/hirakanji-5000/' + level + '.lst';
-  list = fs.readFileSync(filepath).toString().split('\n').filter(word => word.includes(kanji));
+  var filepath = 'graded-vocab-ja/dist/' + level + '.csv';
+  var list = fs.readFileSync(filepath).toString().split('\n')
+    .map(line => line.split(",")[0])
+    .filter(word => word.includes(kanji));
   examples.push(...list);
   return examples;
 }
 
-function getSudachiIdioms(kanji, level) {
+function getGradedIdioms(kanji, level) {
   var examples = [];
-  var filepath = 'sudachi-idioms/kanji-2-all/' + level + '.lst';
-  var list = fs.readFileSync(filepath).toString().split('\n').filter(word => word.includes(kanji));
-  examples.push(...list);
-  filepath = 'sudachi-idioms/kanji-3-all/' + level + '.lst';
-  list = fs.readFileSync(filepath).toString().split('\n').filter(word => word.includes(kanji));
+  var filepath = 'graded-idioms-ja/dist/' + level + '.csv';
+  var list = fs.readFileSync(filepath).toString().split('\n')
+    .map(line => line.split(",")[0])
+    .filter(word => word.includes(kanji));
   examples.push(...list);
   return examples;
 }
 
-function uniq(array) {
-  return array.filter((elem, index, self) => self.indexOf(elem) === index);
-}
-
-
-// 用例が不足している漢字に手動で追加
 function getAdditionalIdioms(kanji) {
-  var list = [];
-  readEachLineSync('additional-word.lst', 'utf8', (line) => {
-    if (line.includes(kanji)) {
-      list.push(line);
-    }
-  });
+  var list = fs.readFileSync("additional-word.lst").toString().split('\n')
+    .filter(word => word.includes(kanji));
   return list;
 }
 
@@ -214,20 +67,17 @@ async function build() {
   if (fs.existsSync('build.log')) {
     fs.unlinkSync('build.log');
   }
-  var regularKanjiInfo;
-  if (!fs.existsSync('regular-kanji-info.json')) {
-    regularKanjiInfo = getRegularKanjiInfo();
-    fs.writeFileSync('regular-kanji-info.json', JSON.stringify(regularKanjiInfo));
-  } else {
-    regularKanjiInfo = JSON.parse(fs.readFileSync('regular-kanji-info.json', 'utf8'));
-  }
-  readEachLineSync('additional-yomi.lst', (line) => {
+  const stream = fs.createReadStream("additional-yomi.lst");
+  const reader = readline.createInterface({ input: stream });
+  for await (const line of reader) {
+    if (!line) { continue; }
     var [word, yomi] = line.split('|');
     yomiDict.dict[word] = [yomi];
-  });
+  }
   for (var level=1; level<gradeByKanjis.length - 1; level++) {
     var info = {};
     gradeByKanjis[level].forEach(kanji => {
+      // TODO: Onkun にノイズが多い
       var [kun, on] = onkunDict.get(kanji);
       var onkun = [];
       if (kun) { onkun = onkun.concat(kun); }
@@ -238,37 +88,20 @@ async function build() {
       info[kanji] = [];
       info[kanji].push(kanji + '|' + onkun.join(','));
 
-      var regularInfo = regularKanjiInfo[kanji];
       var words = [];
-      if (regularInfo) {
-        words = regularInfo['用例'];
-      }
-      words.push(...getNgramIdioms(kanji, level));
+      // 手動追加 > 基本語彙 > 熟語の順番で登録する
       words.push(...getAdditionalIdioms(kanji));
-      words = uniq(words);
+      words.push(...getGradedVocab(kanji, level));
+      words.push(...getGradedIdioms(kanji, level));
+      words = [...new Set(words)].slice(0, 100);
       words.forEach(word => {
-        if (1 < words.length && word.length <= 5 && isValidWord(word, level)) {
+        if (1 < words.length && word.length <= 5) {
           var yomis = yomiDict.get(word);
           if (yomis) {
             info[kanji].push(word + '|' + yomis.join(','));
           }
         }
       });
-
-      if (info[kanji].length < 8) {
-        old_words = words;
-        words = getSudachiIdioms(kanji, level);
-        words = words.filter(word => !old_words.includes(word));
-        words.forEach(word => {
-          if (word.length != 1 && isValidWord(word, level)) {
-            var yomis = yomiDict.get(word);
-            if (yomis) {
-              info[kanji].push(word + '|' + yomis.join(','));
-            }
-          }
-        });
-        fs.appendFileSync('build.log', kanji + ' < 8\n');
-      }
       if (info[kanji].length < 8) {
         fs.appendFileSync('build.log', kanji + ' < 8!\n');
       }
