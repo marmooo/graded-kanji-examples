@@ -102,7 +102,7 @@ async function build() {
       words.push(...idioms);
       words = [...new Set(words)].slice(0, 100);
       words.forEach((word) => {
-        if (1 < words.length && word.length <= 5) {
+        if (1 < word.length && word.length <= 5) {
           const yomis = yomiDict.get(word);
           if (yomis) {
             info[kanji].push(word + "|" + yomis.join(","));
