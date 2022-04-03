@@ -121,7 +121,7 @@ async function build() {
         console.log(kanji + " < 4!");
       }
     }
-    Deno.writeTextFileSync(`dist/${level}.json`, JSON.stringify(info));
+    Deno.writeTextFileSync(`dist/${level}.json`, JSON.stringify(info, null, 2));
   }
 }
 
