@@ -1,6 +1,6 @@
 import { readLines } from "https://deno.land/std/io/mod.ts";
-import { Onkun } from "https://raw.githubusercontent.com/marmooo/onkun/main/mod.js";
-import { YomiDict } from "https://raw.githubusercontent.com/marmooo/yomi-dict/main/mod.js";
+import Onkun from "npm:onkun@0.1.1";
+import YomiDict from "npm:yomi-dict@0.1.3";
 
 const w1_ = Array.from(
   "一右雨円王音下火花貝学気九休玉金空月犬見五口校左三山子四糸字耳七車手十出女小上森人水正生青夕石赤千川先早草足村大男竹中虫町天田土二日入年白八百文木本名目立力林六",
