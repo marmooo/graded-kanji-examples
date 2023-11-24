@@ -1,6 +1,6 @@
 import { readLines } from "https://deno.land/std/io/mod.ts";
 import Onkun from "npm:onkun@0.1.1";
-import YomiDict from "npm:yomi-dict@0.1.3";
+import { YomiDict } from "npm:yomi-dict@0.1.4";
 
 const w1_ = Array.from(
   "一右雨円王音下火花貝学気九休玉金空月犬見五口校左三山子四糸字耳七車手十出女小上森人水正生青夕石赤千川先早草足村大男竹中虫町天田土二日入年白八百文木本名目立力林六",
@@ -70,8 +70,8 @@ function hiraToKana(str) {
 }
 
 async function build() {
-  const yomiDict = await YomiDict.load("yomi-dict/yomi.csv");
-  const onkunDict = await Onkun.load("onkun/Unihan-kJapaneseOnKun.txt");
+  const yomiDict = await YomiDict.fetch("https://cdn.jsdelivr.net/npm/yomi-dict@0.1.4/esm/yomi.csv");
+  const onkunDict = await Onkun.load("Unihan-kJapaneseOnKun.txt");
   const fileReader = await Deno.open("additional-yomi.lst");
   for await (const line of readLines(fileReader)) {
     if (!line) continue;
