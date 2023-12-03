@@ -1,5 +1,5 @@
 import { readLines } from "https://deno.land/std/io/mod.ts";
-import { Onkun } from "https://raw.githubusercontent.com/marmooo/onkun/v0.2.3/mod.js";
+import { Onkun } from "https://raw.githubusercontent.com/marmooo/onkun/v0.2.6/mod.js";
 import { YomiDict } from "npm:yomi-dict@0.1.4";
 import { JKAT } from "npm:@marmooo/kanji@0.0.2";
 
@@ -34,19 +34,21 @@ async function getAdditionalIdioms(kanji) {
 
 function getYomis(kanji, grade) {
   const onkun = onkunDict.get(kanji);
-  if (grade <= 5) {
-    return onkun["小学"];
-  } else if (grade <= 7) {
-    const yomis = [];
-    yomis.push(...onkun["小学"]);
-    yomis.push(...onkun["中学"]);
-    return yomis;
-  } else if (grade <= 9){
-    const yomis = [];
-    yomis.push(...onkun["小学"]);
-    yomis.push(...onkun["中学"]);
-    yomis.push(...onkun["高校"]);
-    return yomis;
+  if (grade <= 9) {
+    return onkun["Joyo"];
+    // if (grade <= 5) {
+    //   return onkun["小学"];
+    // } else if (grade <= 7) {
+    //   const yomis = [];
+    //   yomis.push(...onkun["小学"]);
+    //   yomis.push(...onkun["中学"]);
+    //   return yomis;
+    // } else if (grade <= 9){
+    //   const yomis = [];
+    //   yomis.push(...onkun["小学"]);
+    //   yomis.push(...onkun["中学"]);
+    //   yomis.push(...onkun["高校"]);
+    //   return yomis;
   } else if (onkun) {
     return onkun["Unihan"];
   } else {
@@ -101,14 +103,28 @@ async function build() {
         console.log(kanji + " < 6");
       }
     }
-    Deno.writeTextFileSync(`dist/${grade + 1}.json`, JSON.stringify(info, null, 2));
+    Deno.writeTextFileSync(
+      `dist/${grade + 1}.json`,
+      JSON.stringify(info, null, 2),
+    );
   }
 }
 
-const yomiDict = await YomiDict.fetch("https://cdn.jsdelivr.net/npm/yomi-dict@0.1.4/esm/yomi.csv");
+const yomiDict = await YomiDict.fetch(
+  "https://cdn.jsdelivr.net/npm/yomi-dict@0.1.4/esm/yomi.csv",
+);
 await loadAdditionalYomi(yomiDict);
 const onkunDict = new Onkun();
-await onkunDict.fetchJoyo("https://raw.githubusercontent.com/marmooo/onkun/v0.2.3/data/joyo-2017.csv");
-await onkunDict.fetchUnihan("https://raw.githubusercontent.com/marmooo/onkun/v0.2.3/data/Unihan-2023-07-15.csv");
+await onkunDict.fetchJoyo(
+  "https://raw.githubusercontent.com/marmooo/onkun/v0.2.6/data/joyo-2017.csv",
+);
+await onkunDict.fetch(
+  "Joyo",
+  "https://raw.githubusercontent.com/marmooo/onkun/v0.2.6/data/joyo-2010.csv",
+);
+await onkunDict.fetch(
+  "Unihan",
+  "https://raw.githubusercontent.com/marmooo/onkun/v0.2.6/data/Unihan-2023-07-15.csv",
+);
 
 await build();
