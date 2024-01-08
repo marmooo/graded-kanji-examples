@@ -73,16 +73,9 @@ async function build() {
     const info = {};
     for (const kanji of JKAT[grade]) {
       // 音訓 -> 手動 -> 基本語彙 -> 熟語の順番で登録する
-      const yomis = getYomis(kanji, grade);
+      const yomis = getYomis(kanji, grade).flat();
       const set = new Set();
-      const charYomis = yomis.filter((yomi) => !yomi.includes("-")).join(",");
-      set.add(kanji + "|" + charYomis);
-      yomis.forEach((yomi) => {
-        if (yomi.includes("-")) {
-          const okurigana = yomi.split("-")[1];
-          set.add(kanji + okurigana + "|" + yomi.replace("-", ""));
-        }
-      });
+      set.add(kanji + "|" + yomis.join(","));
       const examples = new Set();
       const original = await getAdditionalIdioms(kanji);
       const vocab = await getGradedVocab(kanji, grade);
