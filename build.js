@@ -69,20 +69,26 @@ function getOnkun(kanji, grade) {
 
 function getYomis(word) {
   const yomis = yomiDict.get(word);
-  if (yomis) {
-    if (yomis.length == 1) return yomis;
-    // はしる,ばしる --> はしる
-    const unified = [];
-    const checkSet = new Set();
-    yomis.forEach((yomi) => {
-      const normalized = yomi[0].normalize("NFD") + yomi.slice(1);
-      if (!checkSet.has(normalized)) {
-        unified.push(yomi);
-        checkSet.add(normalized);
-      }
-    });
-    return unified;
-  }
+  // ほとんどはうまくが、いくつか気になるものがあるので保留
+  // 濁音と清音は SudachiDict 上でも区別するのは困難
+  // 人人 --> ひとひと, ひとびと
+  // 青竹 --> あおたけ, あおだけ
+  // 大口 --> おおくち, おおぐち
+  // if (yomis) {
+  //   if (yomis.length == 1) return yomis;
+  //   // はしる,ばしる --> はしる
+  //   const unified = [];
+  //   const checkSet = new Set();
+  //   yomis.forEach((yomi) => {
+  //     const normalized = yomi.normalize("NFD").replace(/[\u3099\u309a]/, "");
+  //     if (!checkSet.has(normalized)) {
+  //       unified.push(yomi);
+  //       checkSet.add(normalized);
+  //     }
+  //   });
+  //   return unified;
+  // }
+  return yomis;
 }
 
 async function build() {
