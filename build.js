@@ -1,7 +1,7 @@
 import { readLines } from "https://deno.land/std/io/mod.ts";
 import { Onkun } from "https://raw.githubusercontent.com/marmooo/onkun/v0.2.6/mod.js";
-import { YomiDict } from "npm:yomi-dict@0.1.4";
-import { JKAT } from "npm:@marmooo/kanji@0.0.2";
+import { YomiDict } from "npm:yomi-dict@0.1.6";
+import { JKAT } from "npm:@marmooo/kanji@0.0.8";
 
 async function getGradedWords(filepath, kanji) {
   const examples = [];
@@ -32,7 +32,17 @@ async function getAdditionalIdioms(kanji) {
   return await getGradedWords(filepath, kanji);
 }
 
-function getYomis(kanji, grade) {
+async function loadAdditionalYomi(yomiDict) {
+  const file = await Deno.open("additional-yomi.lst");
+  for await (const line of readLines(file)) {
+    if (!line) continue;
+    const [word, yomi] = line.split("|");
+    yomiDict.dict[word] = [yomi];
+  }
+  file.close();
+}
+
+function getOnkun(kanji, grade) {
   const onkun = onkunDict.get(kanji);
   if (grade <= 9) {
     return onkun["Joyo"];
@@ -57,14 +67,22 @@ function getYomis(kanji, grade) {
   }
 }
 
-async function loadAdditionalYomi(yomiDict) {
-  const file = await Deno.open("additional-yomi.lst");
-  for await (const line of readLines(file)) {
-    if (!line) continue;
-    const [word, yomi] = line.split("|");
-    yomiDict.dict[word] = [yomi];
+function getYomis(word) {
+  const yomis = yomiDict.get(word);
+  if (yomis) {
+    if (yomis.length == 1) return yomis;
+    // はしる,ばしる --> はしる
+    const unified = [];
+    const checkSet = new Set();
+    yomis.forEach((yomi) => {
+      const normalized = yomi[0].normalize("NFD") + yomi.slice(1);
+      if (!checkSet.has(normalized)) {
+        unified.push(yomi);
+        checkSet.add(normalized);
+      }
+    });
+    return unified;
   }
-  file.close();
 }
 
 async function build() {
@@ -73,7 +91,7 @@ async function build() {
     const info = {};
     for (const kanji of JKAT[grade]) {
       // 音訓 -> 手動 -> 基本語彙 -> 熟語の順番で登録する
-      const yomis = getYomis(kanji, grade).flat();
+      const yomis = getOnkun(kanji, grade).flat();
       const set = new Set();
       set.add(kanji + "|" + yomis.join(","));
       const examples = new Set();
@@ -85,7 +103,7 @@ async function build() {
       idioms.forEach((word) => examples.add(word));
       [...examples].slice(0, 100).forEach((word) => {
         if (1 < word.length && word.length <= 5) {
-          const yomis = yomiDict.get(word);
+          const yomis = getYomis(word);
           if (yomis) {
             set.add(word + "|" + yomis.join(","));
           }
