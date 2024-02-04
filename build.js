@@ -128,7 +128,7 @@ async function build() {
 }
 
 const yomiDict = await YomiDict.fetch(
-  "https://cdn.jsdelivr.net/npm/yomi-dict@0.1.4/esm/yomi.csv",
+  "https://cdn.jsdelivr.net/npm/yomi-dict@0.1.7/esm/yomi.csv",
 );
 await loadAdditionalYomi(yomiDict);
 const onkunDict = new Onkun();
