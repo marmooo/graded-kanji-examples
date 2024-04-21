@@ -1,6 +1,6 @@
 import { readLines } from "https://deno.land/std/io/mod.ts";
 import { Onkun } from "https://raw.githubusercontent.com/marmooo/onkun/v0.2.6/mod.js";
-import { YomiDict } from "npm:yomi-dict@0.1.7";
+import { YomiDict } from "https://raw.githubusercontent.com/marmooo/yomi-dict/v0.1.7/mod.js";
 import { JKAT } from "npm:@marmooo/kanji@0.0.8";
 
 async function getGradedWords(filepath, kanji) {
@@ -127,21 +127,11 @@ async function build() {
   }
 }
 
-const yomiDict = await YomiDict.fetch(
-  "https://cdn.jsdelivr.net/npm/yomi-dict@0.1.7/esm/yomi.csv",
-);
+const yomiDict = await YomiDict.load("yomi-dict/yomi.csv");
 await loadAdditionalYomi(yomiDict);
 const onkunDict = new Onkun();
-await onkunDict.fetchJoyo(
-  "https://raw.githubusercontent.com/marmooo/onkun/v0.2.6/data/joyo-2017.csv",
-);
-await onkunDict.fetch(
-  "Joyo",
-  "https://raw.githubusercontent.com/marmooo/onkun/v0.2.6/data/joyo-2010.csv",
-);
-await onkunDict.fetch(
-  "Unihan",
-  "https://raw.githubusercontent.com/marmooo/onkun/v0.2.6/data/Unihan-2023-07-15.csv",
-);
+await onkunDict.loadJoyo("onkun/data/joyo-2017.csv");
+await onkunDict.load("Joyo", "onkun/data/joyo-2010.csv");
+await onkunDict.load("Unihan", "onkun/data/Unihan-2023-07-15.csv");
 
 await build();
