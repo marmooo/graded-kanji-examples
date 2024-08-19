@@ -1,4 +1,4 @@
-import { readLines } from "https://deno.land/std/io/mod.ts";
+import { TextLineStream } from "jsr:@std/streams/text-line-stream";
 import { Onkun } from "https://raw.githubusercontent.com/marmooo/onkun/v0.2.8/mod.js";
 import { YomiDict } from "https://raw.githubusercontent.com/marmooo/yomi-dict/v0.1.8/mod.js";
 import { JKAT } from "npm:@marmooo/kanji@0.0.8";
@@ -6,14 +6,16 @@ import { JKAT } from "npm:@marmooo/kanji@0.0.8";
 async function getGradedWords(filepath, kanji) {
   const examples = [];
   const file = await Deno.open(filepath);
-  for await (const line of readLines(file)) {
+  const lineStream = file.readable
+    .pipeThrough(new TextDecoderStream())
+    .pipeThrough(new TextLineStream());
+  for await (const line of lineStream) {
     if (!line) continue;
     const word = line.split(",")[0];
     if (word.includes(kanji)) {
       examples.push(word);
     }
   }
-  file.close();
   return examples;
 }
 
@@ -34,12 +36,14 @@ async function getAdditionalIdioms(kanji) {
 
 async function loadAdditionalYomi(yomiDict) {
   const file = await Deno.open("additional-yomi.lst");
-  for await (const line of readLines(file)) {
+  const lineStream = file.readable
+    .pipeThrough(new TextDecoderStream())
+    .pipeThrough(new TextLineStream());
+  for await (const line of lineStream) {
     if (!line) continue;
     const [word, yomi] = line.split("|");
     yomiDict.dict[word] = [yomi];
   }
-  file.close();
 }
 
 function getOnkun(kanji, grade) {
