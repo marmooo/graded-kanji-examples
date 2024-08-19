@@ -1,6 +1,6 @@
 import { TextLineStream } from "jsr:@std/streams/text-line-stream";
-import { Onkun } from "https://raw.githubusercontent.com/marmooo/onkun/v0.2.8/mod.js";
-import { YomiDict } from "https://raw.githubusercontent.com/marmooo/yomi-dict/v0.1.8/mod.js";
+import { Onkun } from "npm:onkun@0.2.8";
+import { YomiDict } from "npm:yomi-dict@0.1.8";
 import { JKAT } from "npm:@marmooo/kanji@0.0.8";
 
 async function getGradedWords(filepath, kanji) {
