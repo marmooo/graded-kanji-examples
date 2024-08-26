@@ -3,9 +3,9 @@ import { Onkun } from "npm:onkun@0.2.8";
 import { YomiDict } from "npm:yomi-dict@0.1.8";
 import { JKAT } from "npm:@marmooo/kanji@0.0.8";
 
-async function getGradedWords(filepath, kanji) {
+async function getGradedWords(filePath, kanji) {
   const examples = [];
-  const file = await Deno.open(filepath);
+  const file = await Deno.open(filePath);
   const lineStream = file.readable
     .pipeThrough(new TextDecoderStream())
     .pipeThrough(new TextLineStream());
@@ -20,18 +20,18 @@ async function getGradedWords(filepath, kanji) {
 }
 
 async function getGradedVocab(kanji, grade) {
-  const filepath = "graded-vocab-ja/dist/" + (grade + 1) + ".csv";
-  return await getGradedWords(filepath, kanji);
+  const filePath = "graded-vocab-ja/dist/" + (grade + 1) + ".csv";
+  return await getGradedWords(filePath, kanji);
 }
 
 async function getGradedIdioms(kanji, grade) {
-  const filepath = "graded-idioms-ja/dist/" + (grade + 1) + ".csv";
-  return await getGradedWords(filepath, kanji);
+  const filePath = "graded-idioms-ja/dist/" + (grade + 1) + ".csv";
+  return await getGradedWords(filePath, kanji);
 }
 
 async function getAdditionalIdioms(kanji) {
-  const filepath = "additional-word.lst";
-  return await getGradedWords(filepath, kanji);
+  const filePath = "additional-word.lst";
+  return await getGradedWords(filePath, kanji);
 }
 
 async function loadAdditionalYomi(yomiDict) {
