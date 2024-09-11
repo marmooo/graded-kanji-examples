@@ -10,7 +10,6 @@ async function getGradedWords(filePath, kanji) {
     .pipeThrough(new TextDecoderStream())
     .pipeThrough(new TextLineStream());
   for await (const line of lineStream) {
-    if (!line) continue;
     const word = line.split(",")[0];
     if (word.includes(kanji)) {
       examples.push(word);
@@ -40,7 +39,6 @@ async function loadAdditionalYomi(yomiDict) {
     .pipeThrough(new TextDecoderStream())
     .pipeThrough(new TextLineStream());
   for await (const line of lineStream) {
-    if (!line) continue;
     const [word, yomi] = line.split("|");
     yomiDict.dict[word] = [yomi];
   }
