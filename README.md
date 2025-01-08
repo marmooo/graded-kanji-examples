@@ -17,7 +17,7 @@
 ## Build
 
 ```
-deno run --allow-read --allow-write --allow-env build.js > build.log
+deno run -RWE build.js > build.log
 ```
 
 ## License
