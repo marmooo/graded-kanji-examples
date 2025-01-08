@@ -1,5 +1,5 @@
 import { TextLineStream } from "jsr:@std/streams/text-line-stream";
-import { Onkun } from "npm:onkun@0.2.8";
+import { Onkun } from "npm:onkun@0.3.0";
 import { YomiDict } from "npm:yomi-dict@0.2.0";
 import { JKAT } from "npm:@marmooo/kanji@0.0.8";
 
