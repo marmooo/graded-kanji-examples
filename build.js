@@ -1,7 +1,7 @@
 import { TextLineStream } from "jsr:@std/streams/text-line-stream";
 import { Onkun } from "npm:onkun@0.3.0";
 import { YomiDict } from "npm:yomi-dict@0.2.2";
-import { JKAT } from "npm:@marmooo/kanji@0.0.8";
+import { JKAT } from "npm:@marmooo/kanji@0.1.1";
 
 async function getGradedWords(filePath, kanji) {
   const examples = [];
