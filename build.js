@@ -1,7 +1,7 @@
-import { TextLineStream } from "jsr:@std/streams/text-line-stream";
-import { Onkun } from "npm:onkun@0.3.0";
-import { YomiDict } from "npm:yomi-dict@0.2.2";
-import { JKAT } from "npm:@marmooo/kanji@0.1.1";
+import { TextLineStream } from "@std/streams";
+import { Onkun } from "onkun";
+import { YomiDict } from "yomi-dict";
+import { JKAT } from "@marmooo/kanji";
 
 async function getGradedWords(filePath, kanji) {
   const examples = [];
@@ -134,6 +134,6 @@ await loadAdditionalYomi(yomiDict);
 const onkunDict = new Onkun();
 await onkunDict.loadJoyo("onkun/data/joyo-2017.csv");
 await onkunDict.load("Joyo", "onkun/data/joyo-2010.csv");
-await onkunDict.load("Unihan", "onkun/data/Unihan-2023-07-15.csv");
+await onkunDict.load("Unihan", "onkun/data/Unihan-2025-07-24.csv");
 
 await build();
